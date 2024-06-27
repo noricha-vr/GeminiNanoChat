@@ -84,10 +84,10 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano Chat</title>
+	<title>Gemini Nano Google Chromeデモページ</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境で設定方法を分かりやすく解説しています。"
+		content="Google ChromeのGemini Nanoを使用したチャットアプリケーションです。Gemini nanoに対応していない環境で設定方法を分かりやすく解説しています。"
 	/>
 	<link rel="canonical" href="/" />
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />

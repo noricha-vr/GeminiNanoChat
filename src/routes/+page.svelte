@@ -61,7 +61,7 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano Chat</title>
+	<title>Gemini Nano Google Chromeデモページ</title>
 	<meta
 		name="description"
 		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
@@ -135,10 +135,8 @@
 
 	<div class="mt-8 border-l-4 border-blue-500 p-4" role="info">
 		<h2 class="font-bold text-xl mb-2">Gemini Nanoについて</h2>
-		<p>
-			Gemini
-			NanoはGoogleが開発した軽量AIモデルで、Chromeブラウザに直接組み込まれています。主な特徴：
-		</p>
+		<p>Gemini NanoはGoogleが開発した軽量AIモデルで、Chromeブラウザに直接組み込まれています。</p>
+		<h2 class="font-bold text-lg mb-2 mt-3">主な特徴：</h2>
 		<ul class="list-disc list-inside mt-2">
 			<li>プライバシー保護：データがローカルで処理されます</li>
 			<li>高速レスポンス：インターネット接続不要で迅速に応答</li>
