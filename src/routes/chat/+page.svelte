@@ -8,7 +8,7 @@
 	let isLoading: boolean = false;
 	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
-
+	let messages: string[] = [];
 	onMount(async () => {
 		if ((window as any).ai) {
 			const canCreate = await (window as any).ai.canCreateTextSession();
@@ -30,10 +30,9 @@
 		if (session && text.trim()) {
 			isLoading = true;
 			try {
-				const responseStream = await session.promptStreaming(text);
-				for await (const chunk of responseStream) {
-					response = chunk;
-				}
+				response = await session.prompt(text);
+				messages.push(response);
+				console.log(messages);
 			} catch (error) {
 				console.error('Error getting response:', error);
 				response = 'エラーが発生しました。もう一度お試しください。';
@@ -45,14 +44,17 @@
 
 	const debouncedGetResponse = debounce((text: string) => getResponse(text), 300);
 
-	function handleInput(event: Event) {
-		input = (event.target as HTMLTextAreaElement).value;
-		debouncedGetResponse(input);
+	function submit(event: Event) {
+		messages.push(input);
+		const text = messages.join('\n');
+		debouncedGetResponse(text);
+		input = '';
 	}
 
 	function clearInput() {
 		input = '';
 		response = '';
+		messages = [];
 	}
 
 	function convertMarkdownToHtml(markdown: string): string {
@@ -78,10 +80,16 @@
 			class="w-full p-2 border rounded"
 			rows="4"
 			bind:value={input}
-			on:input={handleInput}
 			placeholder="ここに質問を入力してください..."
 		/>
-		<button type="button" class="btn btn-sm variant-filled" on:click={clearInput}> クリア </button>
+		<div class="flex justify-end gap-2">
+			<button type="button" class="btn btn-sm bg-primary-500 text-white" on:click={submit}>
+				送信
+			</button>
+			<button type="button" class="btn btn-sm bg-secondary-500 text-white" on:click={clearInput}>
+				クリア
+			</button>
+		</div>
 	</div>
 	{#if isLoading}
 		<div class="mt-4 p-4 rounded">
@@ -93,19 +101,6 @@
 			<p class="prose">{@html convertMarkdownToHtml(response)}</p>
 		</div>
 	{/if}
-
-	<div class="mt-8 border-l-4 border-blue-500 p-4" role="info">
-		<h2 class="font-bold text-xl mb-2">Gemini Nanoについて</h2>
-		<p>
-			Gemini
-			NanoはGoogleが開発した軽量AIモデルで、Chromeブラウザに直接組み込まれています。主な特徴：
-		</p>
-		<ul class="list-disc list-inside mt-2">
-			<li>プライバシー保護：データがローカルで処理されます</li>
-			<li>高速レスポンス：インターネット接続不要で迅速に応答</li>
-			<li>オフライン対応：インターネットがなくても利用可能</li>
-		</ul>
-	</div>
 </div>
 
 <style>
