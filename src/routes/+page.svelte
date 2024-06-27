@@ -1,44 +1,38 @@
-<!-- src/routes/+page.svelte -->
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 
-	let input = '';
-	let response = '';
-	//@ts-ignore
-	let session = null;
-	let isLoading = false;
-	//@ts-ignore
-	let debounceTimer;
+	let input: string = '';
+	let response: string = '';
+	let session: any = null;
+	let isLoading: boolean = false;
+	let debounceTimer: any;
+	let isGeminiAvailable: boolean = false;
 
 	onMount(async () => {
-		//@ts-ignore
-		if (window.ai) {
-			//@ts-ignore
-			const canCreate = await window.ai.canCreateTextSession();
+		if ((window as any).ai) {
+			const canCreate = await (window as any).ai.canCreateTextSession();
 			if (canCreate !== 'no') {
-				//@ts-ignore
-				session = await window.ai.createTextSession();
+				session = await (window as any).ai.createTextSession();
+				isGeminiAvailable = true;
 			}
 		}
 	});
 
-	//@ts-ignore
-	function debounce(func, delay) {
-		//@ts-ignore
-		return (...args) => {
-			//@ts-ignore
+	function debounce(func: (...args: any[]) => void, delay: number) {
+		return (...args: any[]) => {
 			clearTimeout(debounceTimer);
 			debounceTimer = setTimeout(() => func(...args), delay);
 		};
 	}
 
-	//@ts-ignore
-	async function getResponse(text) {
-		//@ts-ignore
+	async function getResponse(text: string) {
 		if (session && text.trim()) {
 			isLoading = true;
 			try {
-				response = await session.prompt(text);
+				const responseStream = await session.promptStreaming(text);
+				for await (const chunk of responseStream) {
+					response = chunk;
+				}
 			} catch (error) {
 				console.error('Error getting response:', error);
 				response = 'エラーが発生しました。もう一度お試しください。';
@@ -48,46 +42,98 @@
 		}
 	}
 
-	//@ts-ignore
-	const debouncedGetResponse = debounce((text) => getResponse(text), 300);
+	const debouncedGetResponse = debounce((text: string) => getResponse(text), 300);
 
-	//@ts-ignore
-	function handleInput(event) {
-		input = event.target.value;
+	function handleInput(event: Event) {
+		input = (event.target as HTMLTextAreaElement).value;
 		debouncedGetResponse(input);
 	}
 </script>
 
+<svelte:head>
+	<title>Gemini Nano リアルタイムチャット</title>
+	<meta
+		name="description"
+		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
+	/>
+	<link rel="canonical" href="/" />
+	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
+</svelte:head>
+
 <div class="container mx-auto p-4">
-	<h1 class="text-2xl font-bold mb-4">Gemini Nano リアルタイムチャット</h1>
-	<div class="mb-4">
+	<h1 class="text-3xl font-bold mb-6 mt-5">Gemini Nano リアルタイムチャット</h1>
+
+	{#if !isGeminiAvailable}
+		<div class="border-l-4 p-4 mb-6" role="alert">
+			<p class="font-bold">Gemini Nanoが利用できません</p>
+			<p>以下の手順に従って、Gemini Nanoを有効にしてください：</p>
+			<ol class="list-decimal list-inside mt-2">
+				<li>
+					<a
+						href="https://www.google.com/intl/ja/chrome/dev/"
+						target="_blank"
+						rel="noopener noreferrer">Chrome Dev チャンネル</a
+					>をインストールします。
+				</li>
+				<li>
+					<code>chrome://flags</code> を開き、以下の2つのフラグを有効にします：
+					<ul class="list-disc list-inside ml-4">
+						<li>
+							"Enables optimization guide on device": <code>Enabled BypassPerfRequirement</code>
+						</li>
+						<li>"Prompt API for Gemini Nano": <code>Enabled</code></li>
+					</ul>
+				</li>
+				<li>
+					<code>chrome://components</code> にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。
+				</li>
+				<li>Chromeを再起動します。</li>
+			</ol>
+			<p class="mt-2">設定後、このページを更新してください。</p>
+		</div>
+	{/if}
+
+	<div class="mb-4 text-gray-900">
 		<textarea
 			class="w-full p-2 border rounded"
 			rows="4"
 			bind:value={input}
 			on:input={handleInput}
 			placeholder="ここに質問を入力してください..."
-		/>えみ
+		/>
 	</div>
 	{#if isLoading}
-		<div class="mt-4 p-4 bg-gray-100 rounded">
+		<div class="mt-4 p-4 rounded">
 			<p>回答を生成中...</p>
 		</div>
 	{:else if response}
-		<div class="mt-4 p-4 bg-gray-100 text-gray-900 rounded">
+		<div class="mt-4 p-4 rounded">
 			<h2 class="font-bold mb-2">回答:</h2>
 			<p class="">{response}</p>
 		</div>
 	{/if}
+
+	<div class="mt-8 border-l-4 border-blue-500 p-4" role="info">
+		<h2 class="font-bold text-xl mb-2">Gemini Nanoについて</h2>
+		<p>
+			Gemini
+			NanoはGoogleが開発した軽量AIモデルで、Chromeブラウザに直接組み込まれています。主な特徴：
+		</p>
+		<ul class="list-disc list-inside mt-2">
+			<li>プライバシー保護：データがローカルで処理されます</li>
+			<li>高速レスポンス：インターネット接続不要で迅速に応答</li>
+			<li>オフライン対応：インターネットがなくても利用可能</li>
+		</ul>
+		<p class="mt-2">
+			詳細は<a
+				href="https://developer.chrome.com/docs/web-platform/ai-in-web-browser?hl=ja"
+				target="_blank"
+				rel="noopener noreferrer">Chrome開発者ドキュメント</a
+			>をご覧ください。
+		</p>
+	</div>
 </div>
 
 <style>
-	input[type='text'],
-	textarea {
-		color: black;
-	}
-	.chat-input,
-	#message-input {
-		color: black;
-	}
+	/* 必要に応じてスタイルを追加 */
 </style>
