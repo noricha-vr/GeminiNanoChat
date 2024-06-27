@@ -2,7 +2,7 @@
 	import '../app.postcss';
 </script>
 
-<nav class="p-3 flex justify-between bg-gray-100 shadow-md">
+<nav class="p-3 flex justify-between bg-surface-100-800-token shadow-2xl">
 	<div class="text-2xl font-bold">
 		<a href="/">Gemini nano サンプルページ</a>
 	</div>
