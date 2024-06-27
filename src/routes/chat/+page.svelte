@@ -98,12 +98,12 @@
 	<div class="flex-grow overflow-y-auto mb-4 text-gray-900 message-container">
 		{#each messages as message}
 			<div class="p-2 border-b">
-				{@html convertMarkdownToHtml(message.content)}
+				{message.role}: {@html convertMarkdownToHtml(message.content)}
 			</div>
 		{/each}
 	</div>
 
-	<div class="mb-4 text-gray-900">
+	<div class="mb-4 text-gray-900 flex gap-2">
 		<input
 			type="text"
 			class="w-full p-2 border rounded"
@@ -121,9 +121,6 @@
 				disabled={isSubmitDisabled}
 			>
 				送信
-			</button>
-			<button type="button" class="btn btn-sm bg-secondary-500 text-white" on:click={clearInput}>
-				クリア
 			</button>
 		</div>
 	</div>
