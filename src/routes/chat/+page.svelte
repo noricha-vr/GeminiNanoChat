@@ -46,12 +46,6 @@
 		input = '';
 	}
 
-	function clearInput() {
-		input = '';
-		response = '';
-		messages = [];
-	}
-
 	function convertMarkdownToHtml(markdown: string): string {
 		return marked.parse(markdown) as string;
 	}
@@ -69,10 +63,6 @@
 	function handleCompositionEnd() {
 		isComposing = false;
 	}
-
-	// リアクティブなステートメントを使用して、messagesが変更されるたびにreversedMessagesを更新
-	$: reversedMessages = [...messages].reverse();
-
 	// メッセージが更新されるたびにスクロール
 	afterUpdate(() => {
 		const messageContainer = document.querySelector('.message-container');
