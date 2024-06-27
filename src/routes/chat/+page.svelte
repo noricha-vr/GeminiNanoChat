@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 	import { marked } from 'marked';
 
 	let input: string = '';
@@ -57,6 +57,14 @@
 
 	// リアクティブなステートメントを使用して、messagesが変更されるたびにreversedMessagesを更新
 	$: reversedMessages = [...messages].reverse();
+
+	// メッセージが更新されるたびにスクロール
+	afterUpdate(() => {
+		const messageContainer = document.querySelector('.message-container');
+		if (messageContainer) {
+			messageContainer.scrollTop = messageContainer.scrollHeight;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -72,7 +80,7 @@
 <div class="container mx-auto p-4 flex flex-col justify-between h-screen">
 	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano チャット</h1>
 
-	<div class="flex-grow overflow-y-auto mb-4 text-gray-900">
+	<div class="flex-grow overflow-y-auto mb-4 text-gray-900 message-container">
 		{#each messages as message}
 			<div class="p-2 border-b">{message}</div>
 		{/each}
