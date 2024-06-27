@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { marked } from 'marked';
 
 	let input: string = '';
 	let response: string = '';
@@ -48,6 +49,15 @@
 		input = (event.target as HTMLTextAreaElement).value;
 		debouncedGetResponse(input);
 	}
+
+	function clearInput() {
+		input = '';
+		response = '';
+	}
+
+	function convertMarkdownToHtml(markdown: string): string {
+		return marked.parse(markdown) as string;
+	}
 </script>
 
 <svelte:head>
@@ -61,7 +71,7 @@
 </svelte:head>
 
 <div class="container mx-auto p-4">
-	<h1 class="text-3xl font-bold mb-6 mt-5">Gemini Nano リアルタイムチャット</h1>
+	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano リアルタイムチャット</h1>
 
 	{#if !isGeminiAvailable}
 		<div class="border-l-4 p-4 mb-6" role="alert">
@@ -76,7 +86,7 @@
 					>をインストールします。
 				</li>
 				<li>
-					<code>chrome://flags</code> を開き、以下の2つのフラグを有効にします：
+					<code>chrome://flags</code> を開き、以下の2つのフラグを有効���します：
 					<ul class="list-disc list-inside ml-4">
 						<li>
 							"Enables optimization guide on device": <code>Enabled BypassPerfRequirement</code>
@@ -101,6 +111,7 @@
 			on:input={handleInput}
 			placeholder="ここに質問を入力してください..."
 		/>
+		<button type="button" class="btn btn-sm variant-filled" on:click={clearInput}> クリア </button>
 	</div>
 	{#if isLoading}
 		<div class="mt-4 p-4 rounded">
@@ -109,7 +120,7 @@
 	{:else if response}
 		<div class="mt-4 p-4 rounded">
 			<h2 class="font-bold mb-2">回答:</h2>
-			<p class="">{response}</p>
+			<p class="prose">{@html convertMarkdownToHtml(response)}</p>
 		</div>
 	{/if}
 
