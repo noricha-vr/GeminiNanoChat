@@ -61,7 +61,7 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano リアルタイムチャット</title>
+	<title>Gemini Nano Chat</title>
 	<meta
 		name="description"
 		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
@@ -135,13 +135,6 @@
 			<li>高速レスポンス：インターネット接続不要で迅速に応答</li>
 			<li>オフライン対応：インターネットがなくても利用可能</li>
 		</ul>
-		<p class="mt-2">
-			詳細は<a
-				href="https://developer.chrome.com/docs/web-platform/ai-in-web-browser?hl=ja"
-				target="_blank"
-				rel="noopener noreferrer">Chrome開発者ドキュメント</a
-			>をご覧ください。
-		</p>
 	</div>
 </div>
 
