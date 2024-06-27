@@ -13,6 +13,9 @@
 		<li class="mr-6">
 			<a href="/chat">チャット</a>
 		</li>
+		<li class="mr-6">
+			<a href="https://github.com/noricha-vr/GeminiNanoChat" target="_blank">GitHub</a>
+		</li>
 	</ul>
 </nav>
 <slot />
