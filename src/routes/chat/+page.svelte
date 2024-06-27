@@ -6,10 +6,8 @@
 	let response: string = '';
 	let session: any = null;
 	let isLoading: boolean = false;
-	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
-	let messages: string[] = [];
-	let reversedMessages: string[] = [];
+	let messages: { role: string; content: string }[] = [];
 
 	onMount(async () => {
 		if ((window as any).ai) {
@@ -21,13 +19,14 @@
 		}
 	});
 
-	async function getResponse(text: string) {
-		if (session && text.trim()) {
+	async function getResponse(text: any) {
+		if (session) {
 			console.log(`prompt: ${text}`);
 			isLoading = true;
 			try {
 				response = await session.prompt(text);
-				messages = [...messages, response];
+				messages.push({ role: 'assistant', content: response });
+				messages = messages;
 				console.log(messages);
 			} catch (error) {
 				console.error('Error getting response:', error);
@@ -39,9 +38,9 @@
 	}
 
 	function submit(event: Event) {
-		messages = [...messages, input];
-		const text = messages.join('\n---');
-		getResponse(text);
+		messages.push({ role: 'user', content: input });
+
+		getResponse(input);
 		input = '';
 	}
 
@@ -82,7 +81,9 @@
 
 	<div class="flex-grow overflow-y-auto mb-4 text-gray-900 message-container">
 		{#each messages as message}
-			<div class="p-2 border-b">{message}</div>
+			<div class="p-2 border-b">
+				{@html convertMarkdownToHtml(message.content)}
+			</div>
 		{/each}
 	</div>
 
