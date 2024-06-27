@@ -8,10 +8,10 @@
 	</div>
 	<ul class="flex">
 		<li class="mr-6">
-			<a href="#">リアルタイムチャット</a>
+			<a href="/">リアルタイムチャット</a>
 		</li>
 		<li class="mr-6">
-			<a href="#">チャット</a>
+			<a href="/chat">チャット</a>
 		</li>
 	</ul>
 </nav>
