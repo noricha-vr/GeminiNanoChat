@@ -111,7 +111,11 @@
 			on:input={handleInput}
 			placeholder="ここに質問を入力してください..."
 		/>
-		<button type="button" class="btn btn-sm variant-filled" on:click={clearInput}> クリア </button>
+		<div class="text-end mt-1">
+			<button type="button" class="btn btn-sm bg-secondary-500 text-white" on:click={clearInput}>
+				クリア
+			</button>
+		</div>
 	</div>
 	{#if isLoading}
 		<div class="mt-4 p-4 rounded">

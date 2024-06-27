@@ -82,8 +82,12 @@
 			bind:value={input}
 			placeholder="ここに質問を入力してください..."
 		/>
-		<div class="flex justify-end gap-2">
-			<button type="button" class="btn btn-sm bg-primary-500 text-white" on:click={submit}>
+		<div class="flex justify-end gap-2 mt-1">
+			<button
+				type="button"
+				class="btn btn-sm bg-primary-500 text-white font-semibold"
+				on:click={submit}
+			>
 				送信
 			</button>
 			<button type="button" class="btn btn-sm bg-secondary-500 text-white" on:click={clearInput}>
