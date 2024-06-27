@@ -4,7 +4,7 @@
 
 <nav class="p-3 flex justify-between bg-surface-100-800-token shadow-2xl">
 	<div class="text-2xl font-bold">
-		<a href="/">Gemini nano サンプルページ</a>
+		<a href="/">Gemini nanoサンプル</a>
 	</div>
 	<ul class="flex">
 		<li class="mr-6">

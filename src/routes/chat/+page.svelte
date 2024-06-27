@@ -81,7 +81,6 @@
 	<link rel="canonical" href="/" />
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
 </svelte:head>
-
 <div class="container mx-auto p-4 flex flex-col justify-between h-screen">
 	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano チャット</h1>
 
@@ -93,7 +92,8 @@
 		{/each}
 	</div>
 
-	<div class="mb-4 text-gray-900 flex gap-2">
+	<!-- ここから変更 -->
+	<div class="mb-4 text-gray-900 flex gap-2 sticky bottom-0 p-4">
 		<input
 			type="text"
 			class="w-full p-2 border rounded"
@@ -114,4 +114,5 @@
 			</button>
 		</div>
 	</div>
+	<!-- ここまで変更 -->
 </div>
