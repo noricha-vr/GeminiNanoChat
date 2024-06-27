@@ -21,14 +21,19 @@
 		}
 	});
 
-	async function getResponse(text: any) {
-		if (session) {
+	async function getResponse(text: string) {
+		if (session && text.trim()) {
 			console.log(`prompt: ${text}`);
 			isLoading = true;
 			try {
-				response = await session.prompt(text);
+				const responseStream = await session.promptStreaming(text);
+				response = '';
+				for await (const chunk of responseStream) {
+					response = chunk;
+				}
 				messages.push({ role: 'assistant', content: response });
 				messages = messages;
+				response = '';
 				console.log(messages);
 			} catch (error) {
 				console.error('Error getting response:', error);
@@ -76,7 +81,7 @@
 	<title>Gemini Nano Chat</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
+		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境で��設定方法を分かりやすく解説しています。"
 	/>
 	<link rel="canonical" href="/" />
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
@@ -90,6 +95,11 @@
 				{message.role}: {@html convertMarkdownToHtml(message.content)}
 			</div>
 		{/each}
+		<div class="border">
+			{#if response != ''}
+				Assistant: {@html convertMarkdownToHtml(response)}
+			{/if}
+		</div>
 	</div>
 
 	<!-- ここから変更 -->
