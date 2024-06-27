@@ -49,6 +49,12 @@
 
 		getResponse(input);
 		input = '';
+
+		// テキストボックスにフォーカスを設定
+		const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+		if (inputElement) {
+			inputElement.focus();
+		}
 	}
 
 	function convertMarkdownToHtml(markdown: string): string {
@@ -81,7 +87,7 @@
 	<title>Gemini Nano Chat</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境で��設定方法を分かりやすく解説しています。"
+		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境で設定方法を分かりやすく解説しています。"
 	/>
 	<link rel="canonical" href="/" />
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
@@ -95,11 +101,11 @@
 				{message.role}: {@html convertMarkdownToHtml(message.content)}
 			</div>
 		{/each}
-		<div class="border">
-			{#if response != ''}
+		{#if response != ''}
+			<div class="p-2 border-b">
 				Assistant: {@html convertMarkdownToHtml(response)}
-			{/if}
-		</div>
+			</div>
+		{/if}
 	</div>
 
 	<!-- ここから変更 -->
