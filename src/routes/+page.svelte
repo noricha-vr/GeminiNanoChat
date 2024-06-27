@@ -75,19 +75,20 @@
 
 	{#if !isGeminiAvailable}
 		<div class="border-l-4 p-4 mb-6" role="alert">
-			<p class="font-bold">Gemini Nanoが利用できません</p>
+			<p class="font-bold">Gemini Nanoを利用できません</p>
 			<p>以下の手順に従って、Gemini Nanoを有効にしてください：</p>
 			<ol class="list-decimal list-inside mt-2">
 				<li>
 					<a
 						href="https://www.google.com/intl/ja/chrome/dev/"
 						target="_blank"
-						rel="noopener noreferrer">Chrome Dev チャンネル</a
+						class="text-blue-600"
+						rel="noopener noreferrer">Chrome Dev版</a
 					>をインストールします。
 				</li>
 				<li>
-					<code>chrome://flags</code> を開き、以下の2つのフラグを有効���します：
-					<ul class="list-disc list-inside ml-4">
+					<code>chrome://flags</code> を開き、以下の2つのフラグを有効にします：
+					<ul class="list-disc list-inside ml-4 font-bold">
 						<li>
 							"Enables optimization guide on device": <code>Enabled BypassPerfRequirement</code>
 						</li>
@@ -99,7 +100,11 @@
 				</li>
 				<li>Chromeを再起動します。</li>
 			</ol>
-			<p class="mt-2">設定後、このページを更新してください。</p>
+			<p class="mt-2">
+				設定後、<a class="text-blue-600" href="https://gemini-nano-chat.kojin.works/"
+					>https://gemini-nano-chat.kojin.works/</a
+				>にアクセスしてください。
+			</p>
 		</div>
 	{/if}
 
