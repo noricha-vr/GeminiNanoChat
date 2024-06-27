@@ -9,6 +9,8 @@
 	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
 	let messages: string[] = [];
+	let reversedMessages: string[] = [];
+
 	onMount(async () => {
 		if ((window as any).ai) {
 			const canCreate = await (window as any).ai.canCreateTextSession();
@@ -19,19 +21,13 @@
 		}
 	});
 
-	function debounce(func: (...args: any[]) => void, delay: number) {
-		return (...args: any[]) => {
-			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => func(...args), delay);
-		};
-	}
-
 	async function getResponse(text: string) {
 		if (session && text.trim()) {
+			console.log(`prompt: ${text}`);
 			isLoading = true;
 			try {
 				response = await session.prompt(text);
-				messages.push(response);
+				messages = [...messages, response];
 				console.log(messages);
 			} catch (error) {
 				console.error('Error getting response:', error);
@@ -42,12 +38,10 @@
 		}
 	}
 
-	const debouncedGetResponse = debounce((text: string) => getResponse(text), 300);
-
 	function submit(event: Event) {
-		messages.push(input);
-		const text = messages.join('\n');
-		debouncedGetResponse(text);
+		messages = [...messages, input];
+		const text = messages.join('\n---');
+		getResponse(text);
 		input = '';
 	}
 
@@ -60,6 +54,9 @@
 	function convertMarkdownToHtml(markdown: string): string {
 		return marked.parse(markdown) as string;
 	}
+
+	// リアクティブなステートメントを使用して、messagesが変更されるたびにreversedMessagesを更新
+	$: reversedMessages = [...messages].reverse();
 </script>
 
 <svelte:head>
@@ -72,13 +69,19 @@
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
 </svelte:head>
 
-<div class="container mx-auto p-4">
+<div class="container mx-auto p-4 flex flex-col justify-between h-screen">
 	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano チャット</h1>
 
+	<div class="flex-grow overflow-y-auto mb-4 text-gray-900">
+		{#each messages as message}
+			<div class="p-2 border-b">{message}</div>
+		{/each}
+	</div>
+
 	<div class="mb-4 text-gray-900">
-		<textarea
+		<input
+			type="text"
 			class="w-full p-2 border rounded"
-			rows="4"
 			bind:value={input}
 			placeholder="ここに質問を入力してください..."
 		/>
@@ -95,18 +98,4 @@
 			</button>
 		</div>
 	</div>
-	{#if isLoading}
-		<div class="mt-4 p-4 rounded">
-			<p>回答を生成中...</p>
-		</div>
-	{:else if response}
-		<div class="mt-4 p-4 rounded">
-			<h2 class="font-bold mb-2">回答:</h2>
-			<p class="prose">{@html convertMarkdownToHtml(response)}</p>
-		</div>
-	{/if}
 </div>
-
-<style>
-	/* 必要に応じてスタイルを追加 */
-</style>
