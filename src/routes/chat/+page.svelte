@@ -8,6 +8,8 @@
 	let isLoading: boolean = false;
 	let isGeminiAvailable: boolean = false;
 	let messages: { role: string; content: string }[] = [];
+	let isComposing: boolean = false; // 変換中かどうかのフラグ
+	$: isSubmitDisabled = isLoading || input.trim() === '';
 
 	onMount(async () => {
 		if ((window as any).ai) {
@@ -54,6 +56,20 @@
 		return marked.parse(markdown) as string;
 	}
 
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !isComposing) {
+			submit(event);
+		}
+	}
+
+	function handleCompositionStart() {
+		isComposing = true;
+	}
+
+	function handleCompositionEnd() {
+		isComposing = false;
+	}
+
 	// リアクティブなステートメントを使用して、messagesが変更されるたびにreversedMessagesを更新
 	$: reversedMessages = [...messages].reverse();
 
@@ -93,12 +109,16 @@
 			class="w-full p-2 border rounded"
 			bind:value={input}
 			placeholder="ここに質問を入力してください..."
+			on:keydown={handleKeyDown}
+			on:compositionstart={handleCompositionStart}
+			on:compositionend={handleCompositionEnd}
 		/>
 		<div class="flex justify-end gap-2 mt-1">
 			<button
 				type="button"
 				class="btn btn-sm bg-primary-500 text-white font-semibold"
 				on:click={submit}
+				disabled={isSubmitDisabled}
 			>
 				送信
 			</button>
