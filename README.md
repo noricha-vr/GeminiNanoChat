@@ -8,13 +8,17 @@
 - **高速レスポンス**: インターネット接続不要で迅速に応答。
 - **オフライン対応**: インターネットがなくても利用可能。
 
-## 必要な環境
+## Gemini Nanoの有効化手順
 
-- **OS**: MacOS
-- **プロセッサ**: Apple Silicon
-- **エディタ**: VSCode
+1. `chrome://flags` を開き、以下の2つのフラグを有効にします：
+   - "Enables optimization guide on device": `Enabled BypassPerfRequirement`
+   - "Prompt API for Gemini Nano": `Enabled`
+1. `chrome://components` にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。（表示されない場合は、Chromeを再起動すると良いかもしれません）
+1. モデルのアップデートが完了したら、Chromeを再起動します。
 
-## セットアップ
+設定後、[https://gemini-nano-chat.kojin.works/](https://gemini-nano-chat.kojin.works/)にアクセスしてください。
+
+## 開発用セットアップ
 
 ### 依存関係のインストール
 
@@ -82,16 +86,6 @@ tailwind.config.ts
 tsconfig.json
 vite.config.ts
 ```
-
-## Gemini Nanoの有効化手順
-
-1. `chrome://flags` を開き、以下の2つのフラグを有効にします：
-   - "Enables optimization guide on device": `Enabled BypassPerfRequirement`
-   - "Prompt API for Gemini Nano": `Enabled`
-1. `chrome://components` にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。（表示されない場合は、Chromeを再起動すると良いかもしれません）
-1. モデルのアップデートが完了したら、Chromeを再起動します。
-
-設定後、[https://gemini-nano-chat.kojin.works/](https://gemini-nano-chat.kojin.works/)にアクセスしてください。
 
 ## ライセンス
 
