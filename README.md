@@ -85,12 +85,11 @@ vite.config.ts
 
 ## Gemini Nanoの有効化手順
 
-1. [Chrome Dev版](https://www.google.com/intl/ja/chrome/dev/)をインストールします。
-2. `chrome://flags` を開き、以下の2つのフラグを有効にします：
+1. `chrome://flags` を開き、以下の2つのフラグを有効にします：
    - "Enables optimization guide on device": `Enabled BypassPerfRequirement`
    - "Prompt API for Gemini Nano": `Enabled`
-3. `chrome://components` にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。
-4. Chromeを再起動します。
+1. `chrome://components` にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。（表示されない場合は、Chromeを再起動すると良いかもしれません）
+1. モデルのアップデートが完了したら、Chromeを再起動します。
 
 設定後、[https://gemini-nano-chat.kojin.works/](https://gemini-nano-chat.kojin.works/)にアクセスしてください。
 
