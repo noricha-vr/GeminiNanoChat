@@ -32,7 +32,7 @@
 			isLoading = true;
 			const prompts = [
 				`以下のメールを添削してください。\n${text}`,
-				`以下のメールを簡潔にしてください。\n${text}`,
+				`以下のメールを程々に丁寧な表現にしてください。\n${text}`,
 				`以下のメールを丁寧な表現にしてください。\n${text}`
 			];
 			try {
@@ -40,9 +40,9 @@
 					const responseStream = await session.promptStreaming(prompts[i]);
 					let responseText = '';
 					for await (const chunk of responseStream) {
-						responseText += chunk;
+						responseText = chunk;
 					}
-					responses[i] = responseText;
+					responses[i] = responseText; // ストリーミングが完了した後に最終的な応答を格納
 				}
 			} catch (error) {
 				console.error('Error getting response:', error);
