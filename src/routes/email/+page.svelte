@@ -1,0 +1,167 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { marked } from 'marked';
+
+	let input: string = '';
+	let response: string = '';
+	let session: any = null;
+	let isLoading: boolean = false;
+	let debounceTimer: any;
+	let isGeminiAvailable: boolean = false;
+	let responses: string[] = ['', '', ''];
+
+	onMount(async () => {
+		if ((window as any).ai) {
+			const canCreate = await (window as any).ai.canCreateTextSession();
+			if (canCreate !== 'no') {
+				session = await (window as any).ai.createTextSession();
+				isGeminiAvailable = true;
+			}
+		}
+	});
+
+	function debounce(func: (...args: any[]) => void, delay: number) {
+		return (...args: any[]) => {
+			clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(() => func(...args), delay);
+		};
+	}
+
+	async function getResponse(text: string) {
+		if (session && text.trim()) {
+			isLoading = true;
+			const prompts = [
+				`以下のメールを添削してください。\n${text}`,
+				`以下のメールを簡潔にしてください。\n${text}`,
+				`以下のメールを丁寧な表現にしてください。\n${text}`
+			];
+			try {
+				for (let i = 0; i < prompts.length; i++) {
+					const responseStream = await session.promptStreaming(prompts[i]);
+					let responseText = '';
+					for await (const chunk of responseStream) {
+						responseText += chunk;
+					}
+					responses[i] = responseText;
+				}
+			} catch (error) {
+				console.error('Error getting response:', error);
+				responses = ['エラーが発生しました。もう一度お試しください。', '', ''];
+			} finally {
+				isLoading = false;
+			}
+		}
+	}
+
+	const debouncedGetResponse = debounce((text: string) => getResponse(text), 300);
+
+	function handleInput(event: Event) {
+		input = (event.target as HTMLTextAreaElement).value;
+		debouncedGetResponse(input);
+	}
+
+	function clearInput() {
+		input = '';
+		response = '';
+	}
+
+	function convertMarkdownToHtml(markdown: string): string {
+		return marked.parse(markdown) as string;
+	}
+</script>
+
+<svelte:head>
+	<title>Gemini Nano Google Chromeデモページ</title>
+	<meta
+		name="description"
+		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
+	/>
+	<link rel="canonical" href="/" />
+	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
+</svelte:head>
+
+<div class="container mx-auto p-4">
+	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano リアルタイム添削</h1>
+
+	{#if !isGeminiAvailable}
+		<div class="border-l-4 p-4 mb-6" role="alert">
+			<p class="font-bold">Gemini Nanoを利用できません</p>
+			<p>以下の手順に従って、Gemini Nanoを有効にしてください：</p>
+			<ol class="list-decimal list-inside mt-2">
+				<li>
+					<a
+						href="https://www.google.com/intl/ja/chrome/dev/"
+						target="_blank"
+						class="text-blue-600"
+						rel="noopener noreferrer">Chrome Dev版</a
+					>をインストールします。
+				</li>
+				<li>
+					<code>chrome://flags</code> を開き、以下の2つのフラグを有効にします：
+					<ul class="list-disc list-inside ml-4 font-bold">
+						<li>
+							"Enables optimization guide on device": <code>Enabled BypassPerfRequirement</code>
+						</li>
+						<li>"Prompt API for Gemini Nano": <code>Enabled</code></li>
+					</ul>
+				</li>
+				<li>
+					<code>chrome://components</code> にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。
+				</li>
+				<li>Chromeを再起動します。</li>
+			</ol>
+			<p class="mt-2">
+				設定後、<a class="text-blue-600" href="https://gemini-nano-chat.kojin.works/"
+					>https://gemini-nano-chat.kojin.works/</a
+				>にアクセスしてください。
+			</p>
+		</div>
+	{/if}
+
+	<div class="mb-4 text-gray-900">
+		<textarea
+			class="w-full p-2 border rounded"
+			rows="4"
+			bind:value={input}
+			on:input={handleInput}
+			placeholder="ここに質問を入力してください..."
+		/>
+		<div class="text-end mt-1">
+			<button type="button" class="btn btn-sm bg-secondary-500 text-white" on:click={clearInput}>
+				クリア
+			</button>
+		</div>
+	</div>
+	{#if isLoading}
+		<div class="mt-4 p-4 rounded">
+			<p>回答を生成中...</p>
+		</div>
+	{:else if responses[0] || responses[1] || responses[2]}
+		<div class="mt-4 p-4 rounded">
+			<h2 class="font-bold mb-2">回答:</h2>
+			<div class="prose">
+				<h3>候補1：</h3>
+				<p>{@html convertMarkdownToHtml(responses[0])}</p>
+				<h3>候補2：</h3>
+				<p>{@html convertMarkdownToHtml(responses[1])}</p>
+				<h3>候補3：</h3>
+				<p>{@html convertMarkdownToHtml(responses[2])}</p>
+			</div>
+		</div>
+	{/if}
+
+	<div class="mt-8 border-l-4 border-blue-500 p-4" role="info">
+		<h2 class="font-bold text-xl mb-2">Gemini Nanoについて</h2>
+		<p>Gemini NanoはGoogleが開発した軽量AIモデルで、Chromeブラウザに直接組み込まれています。</p>
+		<h2 class="font-bold text-lg mb-2 mt-3">主な特徴：</h2>
+		<ul class="list-disc list-inside mt-2">
+			<li>プライバシー保護：データがローカルで処理されます</li>
+			<li>高速レスポンス：インターネット接続不要で迅速に応答</li>
+			<li>オフライン対応：インターネットがなくても利用可能</li>
+		</ul>
+	</div>
+</div>
+
+<style>
+	/* 必要に応じてスタイルを追加 */
+</style>
