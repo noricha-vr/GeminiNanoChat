@@ -11,12 +11,10 @@
 	let responses: string[] = ['', '', ''];
 
 	onMount(async () => {
-		if ((window as any).ai) {
-			const canCreate = await (window as any).ai.canCreateTextSession();
-			if (canCreate !== 'no') {
-				session = await (window as any).ai.createTextSession();
-				isGeminiAvailable = true;
-			}
+		const capabilities = await ai?.assistant.capabilities();
+		console.log(`assistant: ${capabilities.available}`);
+		if (capabilities.available === 'readily') {
+			isGeminiAvailable = true;
 		}
 	});
 
@@ -28,21 +26,35 @@
 	}
 
 	async function getResponse(text: string) {
-		if (session && text.trim()) {
+		let session1 = await ai?.assistant.create({
+			tone: 'formal'
+		});
+		let session2 = await ai?.assistant.create({
+			tone: 'casual'
+		});
+		let session3 = await ai?.assistant.create({
+			tone: 'frank'
+		});
+
+		if (session1 && session2 && session3 && text.trim()) {
 			isLoading = true;
 			const prompts = [
-				`以下のメールを添削してください。\n${text}`,
-				`以下のメールを程々に丁寧な表現にしてください。\n${text}`,
-				`以下のメールを丁寧な表現にしてください。\n${text}`
+				`以下のメールを与えられたトーンで書き直してください\n${text}`,
+				`以下のメールを与えられたトーンで書き直してください\n${text}`,
+				`以下のメールを与えられたトーンで書き直してください\n${text}`
 			];
 			try {
-				for (let i = 0; i < prompts.length; i++) {
-					const responseStream = await session.promptStreaming(prompts[i]);
-					let responseText = '';
-					for await (const chunk of responseStream) {
-						responseText = chunk;
-					}
-					responses[i] = responseText; // ストリーミングが完了した後に最終的な応答を格納
+				const responseStream1 = await session1.promptStreaming(prompts[1]);
+				for await (const chunk1 of responseStream1) {
+					responses[0] = chunk1;
+				}
+				const responseStream2 = await session2.promptStreaming(prompts[1]);
+				for await (const chunk2 of responseStream2) {
+					responses[1] = chunk2;
+				}
+				const responseStream3 = await session3.promptStreaming(prompts[1]);
+				for await (const chunk3 of responseStream3) {
+					responses[2] = chunk3;
 				}
 			} catch (error) {
 				console.error('Error getting response:', error);
