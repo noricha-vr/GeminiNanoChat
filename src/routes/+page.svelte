@@ -10,12 +10,11 @@
 	let isGeminiAvailable: boolean = false;
 
 	onMount(async () => {
-		if ((window as any).ai) {
-			const canCreate = await (window as any).ai.canCreateTextSession();
-			if (canCreate !== 'no') {
-				session = await (window as any).ai.createTextSession();
-				isGeminiAvailable = true;
-			}
+		const capabilities = await ai?.assistant.capabilities();
+		console.log(`assistant: ${capabilities.available}`);
+		if (capabilities.available === 'readily') {
+			session = await ai?.assistant.create();
+			isGeminiAvailable = true;
 		}
 	});
 
