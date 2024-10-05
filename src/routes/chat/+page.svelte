@@ -13,15 +13,18 @@
 
 	onMount(async () => {
 		if ((window as any).ai) {
-			const canCreate = await (window as any).ai.canCreateTextSession();
-			if (canCreate !== 'no') {
-				session = await (window as any).ai.createTextSession();
+			const canCreate = await ai?.assistant.capabilities();
+			if (canCreate.available === 'readily') {
 				isGeminiAvailable = true;
 			}
 		}
 	});
 
 	async function getResponse(text: string) {
+		let session = await ai?.assistant.create({
+			tone: 'casual',
+			systemPrompt: `ユーザーの質問に対して、丁寧に回答してください。`
+		});
 		if (session && text.trim()) {
 			console.log(`prompt: ${text}`);
 			isLoading = true;
