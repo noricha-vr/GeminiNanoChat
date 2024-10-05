@@ -27,31 +27,36 @@
 
 	async function getResponse(text: string) {
 		let session1 = await ai?.assistant.create({
-			tone: 'formal'
+			tone: 'formal',
+			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
 		let session2 = await ai?.assistant.create({
-			tone: 'casual'
+			tone: 'casual',
+			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
 		let session3 = await ai?.assistant.create({
-			tone: 'frank'
+			tone: 'frank',
+			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
 
 		if (session1 && session2 && session3 && text.trim()) {
 			isLoading = true;
-			const prompt = `以下のメールを与えられたトーンで書き直してください\n${text}`;
 			try {
-				const responseStream1 = await session1.promptStreaming(prompt);
+				const responseStream1 = await session1.promptStreaming(text);
 				for await (const chunk1 of responseStream1) {
 					responses[0] = chunk1;
 				}
-				const responseStream2 = await session2.promptStreaming(prompt);
+				session1.destroy();
+				const responseStream2 = await session2.promptStreaming(text);
 				for await (const chunk2 of responseStream2) {
 					responses[1] = chunk2;
 				}
-				const responseStream3 = await session3.promptStreaming(prompt);
+				session2.destroy();
+				const responseStream3 = await session3.promptStreaming(text);
 				for await (const chunk3 of responseStream3) {
 					responses[2] = chunk3;
 				}
+				session3.destroy();
 			} catch (error) {
 				console.error('Error getting response:', error);
 				responses = ['エラーが発生しました。もう一度お試しください。', '', ''];
