@@ -38,21 +38,17 @@
 
 		if (session1 && session2 && session3 && text.trim()) {
 			isLoading = true;
-			const prompts = [
-				`以下のメールを与えられたトーンで書き直してください\n${text}`,
-				`以下のメールを与えられたトーンで書き直してください\n${text}`,
-				`以下のメールを与えられたトーンで書き直してください\n${text}`
-			];
+			const prompt = `以下のメールを与えられたトーンで書き直してください\n${text}`;
 			try {
-				const responseStream1 = await session1.promptStreaming(prompts[1]);
+				const responseStream1 = await session1.promptStreaming(prompt);
 				for await (const chunk1 of responseStream1) {
 					responses[0] = chunk1;
 				}
-				const responseStream2 = await session2.promptStreaming(prompts[1]);
+				const responseStream2 = await session2.promptStreaming(prompt);
 				for await (const chunk2 of responseStream2) {
 					responses[1] = chunk2;
 				}
-				const responseStream3 = await session3.promptStreaming(prompts[1]);
+				const responseStream3 = await session3.promptStreaming(prompt);
 				for await (const chunk3 of responseStream3) {
 					responses[2] = chunk3;
 				}
