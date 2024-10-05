@@ -26,23 +26,45 @@
 	}
 
 	async function getResponse(text: string) {
+		console.log('Creating new session');
+		session = await ai?.assistant.create();
+
 		if (session && text.trim()) {
 			isLoading = true;
 			try {
+				console.log('getResponse: start');
+				console.log('Input text:', text);
+				console.log('Session state:', session);
 				const responseStream = await session.promptStreaming(text);
+				console.log('Response stream received');
+				let chunkCount = 0;
+				let fullResponse = '';
 				for await (const chunk of responseStream) {
+					chunkCount++;
+					console.log(`Chunk ${chunkCount}:`, chunk);
 					response = chunk;
+					response = response;
 				}
+				console.log('Total chunks received:', chunkCount);
+				console.log('Full response:', fullResponse);
 			} catch (error) {
 				console.error('Error getting response:', error);
+				if (error instanceof Error) {
+					console.error('Error details:', error.message, error.stack);
+				}
 				response = 'エラーが発生しました。もう一度お試しください。';
 			} finally {
+				console.log('getResponse: end');
 				isLoading = false;
 			}
+		} else {
+			console.log('getResponse: session or text is invalid');
+			console.log('Session:', session);
+			console.log('Text:', text);
 		}
 	}
 
-	const debouncedGetResponse = debounce((text: string) => getResponse(text), 300);
+	const debouncedGetResponse = debounce((text: string) => getResponse(text), 1000); // デバウンス時間を1秒に増やす
 
 	function handleInput(event: Event) {
 		input = (event.target as HTMLTextAreaElement).value;
