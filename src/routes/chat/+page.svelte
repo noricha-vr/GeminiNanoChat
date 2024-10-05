@@ -23,7 +23,7 @@
 	async function getResponse(text: string) {
 		let session = await ai?.assistant.create({
 			tone: 'casual',
-			systemPrompt: `ユーザーの質問に対して、丁寧に回答してください。`
+			systemPrompt: `ユーザーの質問に対して、カジュアルに回答し、ユーザーが会話を続けたくなるように返事をしてください。`
 		});
 		if (session && text.trim()) {
 			console.log(`prompt: ${text}`);
