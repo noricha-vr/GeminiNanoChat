@@ -32,7 +32,7 @@
 		});
 		let session2 = await ai?.assistant.create({
 			tone: 'casual',
-			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
+			systemPrompt: `与えられた情報���もとに、言葉を補ってビジネスメールに書き直してください。`
 		});
 		let session3 = await ai?.assistant.create({
 			tone: 'frank',
@@ -84,13 +84,16 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano Google Chromeデモページ</title>
+	<title>Gemini Nano メール添削 | Google Chrome AI アシスタント</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
+		content="Google Chrome搭載のGemini Nanoを使用したリアルタイムメール添削ツール。ビジネスメールを瞬時に3パターンで改善。高速・オフライン対応のAIアシスタントを体験。未対応環境向けの簡単セットアップガイド付き。"
 	/>
-	<link rel="canonical" href="/" />
-	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
+	<link rel="canonical" href="/email" />
+	<meta
+		name="keywords"
+		content="Gemini Nano, Google Chrome, AI メール添削, ビジネスメール, リアルタイム添削, ローカルLLM"
+	/>
 </svelte:head>
 
 <div class="container mx-auto p-4">
@@ -119,7 +122,7 @@
 					</ul>
 				</li>
 				<li>
-					<code>chrome://components</code> にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。
+					<code>chrome://components</code> にアクセスし、"Optimization Guide On Device Model"のアップデー���を確認します。
 				</li>
 				<li>Chromeを再起動します。</li>
 			</ol>

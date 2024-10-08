@@ -14,7 +14,7 @@
 		console.log(`assistant: ${capabilities.available}`);
 		if (capabilities.available === 'readily') {
 			session = await ai?.assistant.create();
-			isGeminiAvailable = true;
+			// isGeminiAvailable = true;
 		}
 	});
 
@@ -82,10 +82,10 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano Google Chromeデモページ</title>
+	<title>Gemini Nanoデモサイト | Google ChromeでローカルLLM体験</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したリアルタイムチャットアプリケーションです。Gemini nanoに対応していない環境では設定方法を分かりやすく解説しています。"
+		content="Google Chrome搭載のGemini Nanoを使用したリアルタイムチャットアプリ。ローカルLLMの高速レスポンスとプライバシー保護を体験。未対応環境向けの詳細セットアップガイド付き。オフライン対応のAIチャットを今すぐ試そう！"
 	/>
 	<link rel="canonical" href="/" />
 	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />

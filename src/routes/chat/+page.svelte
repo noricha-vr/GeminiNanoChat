@@ -87,13 +87,16 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano Google Chromeデモページ</title>
+	<title>Gemini Nano チャット | Google Chrome AI アシスタント体験</title>
 	<meta
 		name="description"
-		content="Google ChromeのGemini Nanoを使用したチャットアプリケーションです。Gemini nanoに対応していない環境で設定方法を分かりやすく解説しています。"
+		content="Google Chrome搭載のGemini Nanoを使用したリアルタイムAIチャット。高速レスポンスとプライバシー保護を両立。オフライン対応で、いつでもどこでもAI会話が可能。未対応環境向けの簡単セットアップガイド付き。"
 	/>
-	<link rel="canonical" href="/" />
-	<meta name="keywords" content="Google, Chrome, Gemini, nano, AI, チャット" />
+	<link rel="canonical" href="/chat" />
+	<meta
+		name="keywords"
+		content="Gemini Nano, Google Chrome, AIチャット, リアルタイム会話, ローカルLLM, オフラインAI"
+	/>
 </svelte:head>
 <div class="container mx-auto p-4 flex flex-col justify-between h-screen">
 	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano チャット</h1>
