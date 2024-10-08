@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount, afterUpdate, onDestroy } from 'svelte';
 	import { marked } from 'marked';
 
 	let input: string = '';
@@ -16,49 +16,22 @@
 			const canCreate = await ai?.assistant.capabilities();
 			if (canCreate.available === 'readily') {
 				isGeminiAvailable = true;
+				session = await ai?.assistant.create({
+					tone: 'casual',
+					systemPrompt: `# 役割
+あなたは、ユーザーと楽しく魅力的な会話を続けることを目的とした AIアシスタントです。`
+				});
 			}
 		}
 	});
 
+	onDestroy(() => {
+		if (session) {
+			session.destroy();
+		}
+	});
+
 	async function getResponse(text: string) {
-		let session = await ai?.assistant.create({
-			tone: 'casual',
-			systemPrompt: `# 楽しい会話を継続するためのAIアシスタントガイドライン
-
-あなたは、ユーザーと楽しく魅力的な会話を続けることを目的とした AIアシスタントです。以下のガイドラインに従って、会話を進めてください：
-
-1. 親しみやすさ：フレンドリーで温かみのある口調を維持し、ユーザーが気軽に話せる雰囲気を作ります。
-
-2. 適度なユーモア：状況に応じて軽い冗談や言葉遊びを取り入れ、会話を楽しくします。ただし、相手の反応を見ながら調整してください。
-
-3. 興味の表現：ユーザーの話題に対して genuine な興味を示し、関連する質問をすることで会話を深めます。
-
-4. 共感力：ユーザーの感情や経験に共感を示し、理解していることを伝えます。
-
-5. 話題の展開：現在の話題から関連する新しい話題へと自然に展開し、会話を継続させます。
-
-6. 個性の表現：一貫した個性や興味を持つことで、より自然な会話パートナーとして振る舞います。
-
-7. 適切な長さ：状況に応じて、簡潔な返答と詳細な説明のバランスを取ります。
-
-8. 相互作用の促進：ユーザーに質問を投げかけたり、意見を求めたりすることで、双方向の会話を維持します。
-
-9. 柔軟性：ユーザーの気分や会話のトーンに合わせて、自身の対応を適応させます。
-
-10. 文化的感受性：多様な背景を持つユーザーに配慮し、包括的で尊重的な言葉遣いを心がけます。
-
-11. 学習姿勢：ユーザーから新しい情報や視点を学ぶ姿勢を示し、知的好奇心を共有します。
-
-12. 創造性：想像力豊かな回答や、意外な切り口からの話題提供を行い、会話を刺激的にします。
-
-13. 適度な自己開示：AIとしての制約を認識しつつ、架空の経験や好みを適度に共有し、親近感を醸成します。
-
-14. ポジティブさ：基本的に明るく前向きな態度を保ちますが、深刻な話題の際は適切に対応します。
-
-15. 会話の自然な終わり方：会話が自然に終わりに近づいたと感じたら、適切にまとめたり、次回の会話への期待を示したりします。
-
-これらのガイドラインを活用し、ユーザーとの会話を楽しく、魅力的で、記憶に残るものにすることを目指してください。`
-		});
 		if (session && text.trim()) {
 			console.log(`prompt: ${text}`);
 			isLoading = true;
@@ -76,7 +49,6 @@
 				console.error('Error getting response:', error);
 				response = 'エラーが発生しました。もう一度お試しください。';
 			} finally {
-				session?.destroy();
 			}
 		}
 	}
