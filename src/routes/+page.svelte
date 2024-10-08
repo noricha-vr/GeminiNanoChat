@@ -50,7 +50,6 @@
 					console.error('Error details:', error.message, error.stack);
 				}
 				response = 'エラーが発生しました。もう一度お試しください。';
-				session?.destroy();
 			} finally {
 				console.log('getResponse: end');
 				session?.destroy();
