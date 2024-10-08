@@ -6,8 +6,9 @@
 	let response: string = '';
 	let isLoading: boolean = false;
 	let debounceTimer: any;
+	let session: any = null;
 	let isGeminiAvailable: boolean = false;
-	let chunkCount: number = 0;
+	let isWriting: boolean = false;
 	onMount(async () => {
 		const capabilities = await ai?.assistant.capabilities();
 		console.log(`assistant: ${capabilities.available}`);
@@ -25,36 +26,33 @@
 
 	async function getResponse(text: string) {
 		console.log('Creating new session');
-		const session = await ai?.assistant.create();
+		if (isWriting) {
+			session?.destroy();
+		}
+		session = await ai?.assistant.create();
 
 		if (session && text.trim()) {
 			isLoading = true;
 			try {
 				console.log('getResponse: start');
 				console.log('Input text:', text);
-				console.log('Session state:', session);
 				const responseStream = await session.promptStreaming(text);
 				console.log('Response stream received');
-				chunkCount = 0;
-				let fullResponse = '';
+				isLoading = false;
 				for await (const chunk of responseStream) {
-					chunkCount++;
-					console.log(`Chunk ${chunkCount}:`, chunk);
 					response = chunk;
-					isLoading = false;
+					isWriting = true;
 				}
-				console.log('Total chunks received:', chunkCount);
-				console.log('Full response:', fullResponse);
 			} catch (error) {
-				console.error('Error getting response:', error);
+				console.warn('Error getting response:', error);
 				if (error instanceof Error) {
-					console.error('Error details:', error.message, error.stack);
+					console.warn('Error details:', error.message, error.stack);
 				}
 				response = 'エラーが発生しました。もう一度お試しください。';
 			} finally {
 				console.log('getResponse: end');
+				isWriting = false;
 				session?.destroy();
-				isLoading = false;
 			}
 		} else {
 			console.log('getResponse: session or text is invalid');
