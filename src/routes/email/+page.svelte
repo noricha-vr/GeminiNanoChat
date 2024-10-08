@@ -100,7 +100,7 @@
 </script>
 
 <svelte:head>
-	<title>Gemini Nano メール添削 | Google Chrome AI アシスタント</title>
+	<title>Gemini Nano メール作成アシスタント | Google Chrome AI アシスタント</title>
 	<meta
 		name="description"
 		content="Google Chrome搭載のGemini Nanoを使用したリアルタイムメール添削ツール。ビジネスメールを瞬時に3パターンで改善。高速・オフライン対応のAIアシスタントを体験。未対応環境向けの簡単セットアップガイド付き。"
@@ -113,7 +113,7 @@
 </svelte:head>
 
 <div class="container mx-auto p-4">
-	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano リアルタイム添削</h1>
+	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano メール作成アシスタント</h1>
 
 	{#if !isGeminiAvailable}
 		<div class="border-l-4 p-4 mb-6" role="alert">
