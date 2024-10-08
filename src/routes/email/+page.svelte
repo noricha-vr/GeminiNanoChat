@@ -4,7 +4,8 @@
 
 	let input: string = '';
 	let response: string = '';
-	let session: any = null;
+	let sessions: any[] = [];
+	let isWritings: boolean[] = [false, false, false];
 	let isLoading: boolean = false;
 	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
@@ -26,41 +27,50 @@
 	}
 
 	async function getResponse(text: string) {
-		let session1 = await ai?.assistant.create({
+		for (let i = 0; i < 3; i++) {
+			if (isWritings[i]) {
+				sessions[i]?.destroy();
+			}
+		}
+		sessions[0] = await ai?.assistant.create({
 			tone: 'formal',
 			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
-		let session2 = await ai?.assistant.create({
+		sessions[1] = await ai?.assistant.create({
 			tone: 'casual',
-			systemPrompt: `与えられた情報���もとに、言葉を補ってビジネスメールに書き直してください。`
+			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
-		let session3 = await ai?.assistant.create({
+		sessions[2] = await ai?.assistant.create({
 			tone: 'frank',
 			systemPrompt: `与えられた情報をもとに、言葉を補ってビジネスメールに書き直してください。`
 		});
 
-		if (session1 && session2 && session3 && text.trim()) {
+		if (sessions[0] && sessions[1] && sessions[2] && text.trim()) {
 			isLoading = true;
 			try {
-				const responseStream1 = await session1.promptStreaming(text);
+				const responseStream1 = await sessions[0].promptStreaming(text);
+				isLoading = false;
 				for await (const chunk1 of responseStream1) {
 					responses[0] = chunk1;
+					isWritings[0] = true;
 				}
-				session1.destroy();
-				const responseStream2 = await session2.promptStreaming(text);
+				const responseStream2 = await sessions[1].promptStreaming(text);
 				for await (const chunk2 of responseStream2) {
 					responses[1] = chunk2;
+					isWritings[1] = true;
 				}
-				session2.destroy();
-				const responseStream3 = await session3.promptStreaming(text);
+				const responseStream3 = await sessions[2].promptStreaming(text);
 				for await (const chunk3 of responseStream3) {
 					responses[2] = chunk3;
+					isWritings[2] = true;
 				}
-				session3.destroy();
 			} catch (error) {
-				console.error('Error getting response:', error);
+				console.warn('Error getting response:', error);
 				responses = ['エラーが発生しました。もう一度お試しください。', '', ''];
 			} finally {
+				for (let i = 0; i < 3; i++) {
+					sessions[i]?.destroy();
+				}
 				isLoading = false;
 			}
 		}
@@ -75,7 +85,13 @@
 
 	function clearInput() {
 		input = '';
-		response = '';
+		responses = ['', '', ''];
+		for (let i = 0; i < 3; i++) {
+			if (isWritings[i]) {
+				sessions[i]?.destroy();
+			}
+		}
+		isWritings = [false, false, false];
 	}
 
 	function convertMarkdownToHtml(markdown: string): string {
