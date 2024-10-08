@@ -4,7 +4,6 @@
 
 	let input: string = '';
 	let response: string = '';
-	let session: any = null;
 	let isLoading: boolean = false;
 	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
@@ -13,7 +12,6 @@
 		const capabilities = await ai?.assistant.capabilities();
 		console.log(`assistant: ${capabilities.available}`);
 		if (capabilities.available === 'readily') {
-			session = await ai?.assistant.create();
 			isGeminiAvailable = true;
 		}
 	});
@@ -27,7 +25,7 @@
 
 	async function getResponse(text: string) {
 		console.log('Creating new session');
-		session = await ai?.assistant.create();
+		const session = await ai?.assistant.create();
 
 		if (session && text.trim()) {
 			isLoading = true;
@@ -43,7 +41,6 @@
 					chunkCount++;
 					console.log(`Chunk ${chunkCount}:`, chunk);
 					response = chunk;
-					response = response;
 				}
 				console.log('Total chunks received:', chunkCount);
 				console.log('Full response:', fullResponse);
@@ -53,8 +50,10 @@
 					console.error('Error details:', error.message, error.stack);
 				}
 				response = 'エラーが発生しました。もう一度お試しください。';
+				session?.destroy();
 			} finally {
 				console.log('getResponse: end');
+				session?.destroy();
 				isLoading = false;
 			}
 		} else {
