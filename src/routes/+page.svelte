@@ -7,7 +7,7 @@
 	let isLoading: boolean = false;
 	let debounceTimer: any;
 	let isGeminiAvailable: boolean = false;
-
+	let chunkCount: number = 0;
 	onMount(async () => {
 		const capabilities = await ai?.assistant.capabilities();
 		console.log(`assistant: ${capabilities.available}`);
@@ -35,12 +35,13 @@
 				console.log('Session state:', session);
 				const responseStream = await session.promptStreaming(text);
 				console.log('Response stream received');
-				let chunkCount = 0;
+				chunkCount = 0;
 				let fullResponse = '';
 				for await (const chunk of responseStream) {
 					chunkCount++;
 					console.log(`Chunk ${chunkCount}:`, chunk);
 					response = chunk;
+					isLoading = false;
 				}
 				console.log('Total chunks received:', chunkCount);
 				console.log('Full response:', fullResponse);
@@ -62,7 +63,7 @@
 		}
 	}
 
-	const debouncedGetResponse = debounce((text: string) => getResponse(text), 1000); // デバウンス時間を1秒に増やす
+	const debouncedGetResponse = debounce((text: string) => getResponse(text), 100); // デバウンス時間を1秒に増やす
 
 	function handleInput(event: Event) {
 		input = (event.target as HTMLTextAreaElement).value;
