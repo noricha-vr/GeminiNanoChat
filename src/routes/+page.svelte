@@ -100,14 +100,6 @@
 			<p>以下の手順に従って、Gemini Nanoを有効にしてください：</p>
 			<ol class="list-decimal list-inside mt-2">
 				<li>
-					<a
-						href="https://www.google.com/intl/ja/chrome/dev/"
-						target="_blank"
-						class="text-blue-600"
-						rel="noopener noreferrer">Chrome Dev版</a
-					>をインストールします。
-				</li>
-				<li>
 					<code>chrome://flags</code> を開き、以下の2つのフラグを有効にします：
 					<ul class="list-disc list-inside ml-4 font-bold">
 						<li>
@@ -116,16 +108,12 @@
 						<li>"Prompt API for Gemini Nano": <code>Enabled</code></li>
 					</ul>
 				</li>
+				<li>Google Chromeを再起動します。</li>
 				<li>
 					<code>chrome://components</code> にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。
 				</li>
-				<li>Chromeを再起動します。</li>
+				<li>このページをリロードして、メッセージが消えていればGemini Nanoが有効になっています。</li>
 			</ol>
-			<p class="mt-2">
-				設定後、<a class="text-blue-600" href="https://gemini-nano-chat.kojin.works/"
-					>https://gemini-nano-chat.kojin.works/</a
-				>にアクセスしてください。
-			</p>
 		</div>
 	{/if}
 
