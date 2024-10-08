@@ -14,7 +14,7 @@
 		console.log(`assistant: ${capabilities.available}`);
 		if (capabilities.available === 'readily') {
 			session = await ai?.assistant.create();
-			// isGeminiAvailable = true;
+			isGeminiAvailable = true;
 		}
 	});
 
