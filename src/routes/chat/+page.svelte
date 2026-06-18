@@ -1,69 +1,93 @@
 <script lang="ts">
-	import { onMount, afterUpdate, onDestroy } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { marked } from 'marked';
+	import {
+		createSession,
+		getAvailability,
+		isSupported,
+		type Availability,
+		type LanguageModelSession
+	} from '$lib/gemini-nano';
+	import SetupGuide from '$lib/SetupGuide.svelte';
 
-	let input: string = '';
-	let response: string = '';
-	let session: any = null;
-	let isLoading: boolean = false;
-	let isGeminiAvailable: boolean = false;
-	let messages: { role: string; content: string }[] = [];
-	let isComposing: boolean = false; // 変換中かどうかのフラグ
-	$: isSubmitDisabled = isLoading || input.trim() === '';
+	const SYSTEM_PROMPT = `あなたは親しみやすい日本語のアシスタントです。
+ユーザーとの会話履歴を踏まえ、簡潔で分かりやすく答えてください。`;
+
+	let input = '';
+	let streamingResponse = '';
+	let session: LanguageModelSession | null = null;
+	let isLoading = false;
+	let availability: Availability | 'checking' = 'checking';
+	let downloadProgress: number | null = null;
+	let messages: { role: 'user' | 'assistant'; content: string }[] = [];
+	let isComposing = false;
+
+	$: isSubmitDisabled = isLoading || input.trim() === '' || availability !== 'available';
 
 	onMount(async () => {
-		if ((window as any).ai) {
-			const canCreate = await ai?.assistant.capabilities();
-			if (canCreate.available === 'readily') {
-				isGeminiAvailable = true;
-				session = await ai?.assistant.create({
-					tone: 'casual',
-					systemPrompt: `# 役割
-あなたは、ユーザーと楽しく魅力的な会話を続けることを目的とした AIアシスタントです。`
-				});
-			}
+		if (!isSupported()) {
+			availability = 'unavailable';
+			return;
+		}
+		availability = await getAvailability();
+		if (availability === 'unavailable') return;
+
+		try {
+			session = await createSession({
+				systemPrompt: SYSTEM_PROMPT,
+				onDownloadProgress: (pct) => {
+					availability = 'downloading';
+					downloadProgress = pct;
+				}
+			});
+			availability = 'available';
+			downloadProgress = null;
+		} catch (err) {
+			console.error('Failed to create session:', err);
+			availability = 'unavailable';
 		}
 	});
 
 	onDestroy(() => {
-		if (session) {
-			session.destroy();
-		}
+		session?.destroy();
 	});
 
 	async function getResponse(text: string) {
-		if (session && text.trim()) {
-			console.log(`prompt: ${text}`);
-			isLoading = true;
-			try {
-				const responseStream = await session.promptStreaming(text);
-				isLoading = false;
-				response = '';
-				for await (const chunk of responseStream) {
-					response = chunk;
-				}
-				messages = [...messages, { role: 'assistant', content: response }];
-				response = '';
-				console.log(messages);
-			} catch (error) {
-				console.error('Error getting response:', error);
-				response = 'エラーが発生しました。もう一度お試しください。';
-			} finally {
+		if (!session) return;
+		isLoading = true;
+		streamingResponse = '';
+
+		try {
+			const stream = session.promptStreaming(text);
+			let acc = '';
+			for await (const chunk of stream) {
+				acc += chunk;
+				streamingResponse = acc;
 			}
+			messages = [...messages, { role: 'assistant', content: acc }];
+			streamingResponse = '';
+		} catch (error) {
+			console.error('Error getting response:', error);
+			messages = [
+				...messages,
+				{ role: 'assistant', content: `エラー: ${(error as Error).message ?? error}` }
+			];
+			streamingResponse = '';
+		} finally {
+			isLoading = false;
 		}
 	}
 
-	function submit(event: Event) {
-		messages = [...messages, { role: 'user', content: input }];
-
-		getResponse(input);
+	function submit() {
+		const text = input.trim();
+		if (!text || isSubmitDisabled) return;
+		messages = [...messages, { role: 'user', content: text }];
+		const sending = text;
 		input = '';
+		getResponse(sending);
 
-		// テキストボックスにフォーカスを設定
-		const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
-		if (inputElement) {
-			inputElement.focus();
-		}
+		const inputElement = document.querySelector<HTMLInputElement>('input[type="text"]');
+		inputElement?.focus();
 	}
 
 	function convertMarkdownToHtml(markdown: string): string {
@@ -72,18 +96,11 @@
 
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !isComposing) {
-			submit(event);
+			event.preventDefault();
+			submit();
 		}
 	}
 
-	function handleCompositionStart() {
-		isComposing = true;
-	}
-
-	function handleCompositionEnd() {
-		isComposing = false;
-	}
-	// メッセージが更新されるたびにスクロール
 	afterUpdate(() => {
 		const messageContainer = document.querySelector('.message-container');
 		if (messageContainer) {
@@ -96,51 +113,54 @@
 	<title>Gemini Nano チャット | Google Chrome AI アシスタント体験</title>
 	<meta
 		name="description"
-		content="Google Chrome搭載のGemini Nanoを使用したリアルタイムAIチャット。高速レスポンスとプライバシー保護を両立。オフライン対応で、いつでもどこでもAI会話が可能。未対応環境向けの簡単セットアップガイド付き。"
+		content="Google Chrome 搭載の Gemini Nano (Prompt API) による会話履歴つきリアルタイム AI チャット。ローカル動作・オフライン対応。"
 	/>
 	<link rel="canonical" href="/chat" />
 	<meta
 		name="keywords"
-		content="Gemini Nano, Google Chrome, AIチャット, リアルタイム会話, ローカルLLM, オフラインAI"
+		content="Gemini Nano, Google Chrome, AI チャット, Prompt API, LanguageModel, ローカル LLM"
 	/>
 </svelte:head>
-<div class="container mx-auto p-4 flex flex-col justify-between h-screen">
-	<h1 class="text-3xl font-bold mb-6 mt-5 text-center">Gemini Nano チャット</h1>
 
-	<div class="flex-grow overflow-y-auto mb-4 text-gray-900 message-container">
+<div class="container mx-auto p-4 max-w-3xl flex flex-col h-screen">
+	<h1 class="text-3xl font-bold mb-4 mt-5 text-center">Gemini Nano チャット</h1>
+
+	<SetupGuide {availability} {downloadProgress} />
+
+	<div class="flex-grow overflow-y-auto mb-4 text-gray-900 message-container space-y-3">
 		{#each messages as message}
-			<div class="p-2 border-b">
-				{message.role}: {@html convertMarkdownToHtml(message.content)}
+			<div class="p-3 border rounded {message.role === 'user' ? 'bg-blue-50' : 'bg-white'}">
+				<div class="text-xs text-gray-500 mb-1">{message.role === 'user' ? 'You' : 'Assistant'}</div>
+				<div class="prose max-w-none">{@html convertMarkdownToHtml(message.content)}</div>
 			</div>
 		{/each}
-		{#if response != ''}
-			<div class="p-2 border-b">
-				Assistant: {@html convertMarkdownToHtml(response)}
+		{#if streamingResponse}
+			<div class="p-3 border rounded bg-white">
+				<div class="text-xs text-gray-500 mb-1">Assistant</div>
+				<div class="prose max-w-none">{@html convertMarkdownToHtml(streamingResponse)}</div>
 			</div>
+		{:else if isLoading}
+			<div class="p-3 border rounded bg-white text-gray-500">回答を生成中...</div>
 		{/if}
 	</div>
 
-	<!-- ここから変更 -->
-	<div class="mb-4 text-gray-900 flex gap-2 sticky bottom-0 p-4">
+	<div class="mb-4 text-gray-900 flex gap-2 sticky bottom-0 p-4 bg-white/90 backdrop-blur">
 		<input
 			type="text"
 			class="w-full p-2 border rounded"
 			bind:value={input}
-			placeholder="ここに質問を入力してください..."
+			placeholder="メッセージを入力 (Enter で送信)"
 			on:keydown={handleKeyDown}
-			on:compositionstart={handleCompositionStart}
-			on:compositionend={handleCompositionEnd}
+			on:compositionstart={() => (isComposing = true)}
+			on:compositionend={() => (isComposing = false)}
 		/>
-		<div class="flex justify-end gap-2 mt-1">
-			<button
-				type="button"
-				class="btn btn-sm bg-primary-500 text-white font-semibold"
-				on:click={submit}
-				disabled={isSubmitDisabled}
-			>
-				送信
-			</button>
-		</div>
+		<button
+			type="button"
+			class="btn btn-sm bg-primary-500 text-white font-semibold"
+			on:click={submit}
+			disabled={isSubmitDisabled}
+		>
+			送信
+		</button>
 	</div>
-	<!-- ここまで変更 -->
 </div>
