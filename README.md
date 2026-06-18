@@ -8,15 +8,54 @@
 - **高速レスポンス**: インターネット接続不要で迅速に応答。
 - **オフライン対応**: インターネットがなくても利用可能。
 
-## Gemini Nanoの有効化手順
+## Gemini Nano の有効化手順
 
-1. `chrome://flags` を開き、以下の2つのフラグを有効にします：
-   - "Enables optimization guide on device": `Enabled BypassPerfRequirement`
-   - "Prompt API for Gemini Nano": `Enabled`
-1. `chrome://components` にアクセスし、"Optimization Guide On Device Model"のアップデートを確認します。（表示されない場合は、Chromeを再起動すると良いかもしれません）
-1. モデルのアップデートが完了したら、Chromeを再起動します。
+このアプリは Chrome の **Prompt API (`LanguageModel`)** を直接呼び出します。
+事前に以下のセットアップが必要です（Chrome 138+ / Dev・Canary 推奨）。
 
-設定後、[https://gemini-nano-chat.kojin.works/](https://gemini-nano-chat.kojin.works/)にアクセスしてください。
+1. `chrome://flags/#optimization-guide-on-device-model` を **Enabled BypassPerfRequirement** に設定
+2. `chrome://flags/#prompt-api-for-gemini-nano` を **Enabled** に設定
+3. Chrome を再起動
+4. アプリを開き、初回はモデル（約 4GB）のダウンロード完了を待つ
+   - 進捗はアプリ内に表示されます
+   - `chrome://on-device-internals` でも状態を確認できます
+
+### 動作要件
+
+| | |
+|---|---|
+| Chrome | 138+ (Dev / Canary 推奨) |
+| OS | Windows 10/11, macOS 13+, Linux, ChromeOS (Chromebook Plus) |
+| ストレージ | 22 GB 以上の空き |
+| GPU | 4 GB+ VRAM **または** |
+| CPU | 16 GB+ RAM かつ 4 コア以上 |
+| 回線 | 初回のモデル DL (約 4GB) 用に従量課金でない回線 |
+
+### API の概要 (本アプリ内部での使い方)
+
+```ts
+const availability = await LanguageModel.availability();
+// "unavailable" | "downloadable" | "downloading" | "available"
+
+const session = await LanguageModel.create({
+  initialPrompts: [{ role: 'system', content: 'You are a helpful assistant.' }],
+  monitor(m) {
+    m.addEventListener('downloadprogress', (e) => {
+      console.log(`${Math.round(e.loaded * 100)}%`);
+    });
+  }
+});
+
+const stream = session.promptStreaming('こんにちは');
+for await (const chunk of stream) {
+  // chunk は差分テキスト。連結して使う。
+  console.log(chunk);
+}
+
+session.destroy();
+```
+
+参考: [Ar9av/gemini-nano-chrome](https://github.com/Ar9av/gemini-nano-chrome)
 
 ## 開発用セットアップ
 
